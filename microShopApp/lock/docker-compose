@@ -1,0 +1,176 @@
+version: '3'
+
+services:
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - PRODUCTS_SERVICE_URL=http://products-service:3002
+      - ORDERS_SERVICE_URL=http://orders-service:3003
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - auth-service
+      - products-service
+      - orders-service
+    networks:
+      - microshop-network
+
+  # Auth Service
+  auth-service:
+    build: ./auth-service
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://users-db:27017/users
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - users-db
+    networks:
+      - microshop-network
+
+  # Products Service
+  products-service:
+    build: ./products-service
+    environment:
+      - PORT=3002
+      - MONGODB_URI=mongodb://products-db:27017/products
+      - INVENTORY_SERVICE_URL=http://inventory-service:3005
+    depends_on:
+      - products-db
+      - inventory-service
+    networks:
+      - microshop-network
+
+  # Orders Service
+  orders-service:
+    build: ./orders-service
+    environment:
+      - PORT=3003
+      - MONGODB_URI=mongodb://orders-db:27017/orders
+      - INVENTORY_SERVICE_URL=http://inventory-service:3005
+      - PAYMENT_SERVICE_URL=http://payments-service:3004
+      - NOTIFICATION_SERVICE_URL=http://notifications-service:3006
+    depends_on:
+      - orders-db
+      - inventory-service
+      - payments-service
+      - notifications-service
+    networks:
+      - microshop-network
+
+  # Payments Service
+  payments-service:
+    build: ./payments-service
+    environment:
+      - PORT=3004
+      - MONGODB_URI=mongodb://payments-db:27017/payments
+      - NOTIFICATION_SERVICE_URL=http://notifications-service:3006
+    depends_on:
+      - payments-db
+      - notifications-service
+    networks:
+      - microshop-network
+
+  # Inventory Service
+  inventory-service:
+    build: ./inventory-service
+    environment:
+      - PORT=3005
+      - MONGODB_URI=mongodb://inventory-db:27017/inventory
+    depends_on:
+      - inventory-db
+    networks:
+      - microshop-network
+
+  # Notifications Service
+  notifications-service:
+    build: ./notifications-service
+    environment:
+      - PORT=3006
+      - MONGODB_URI=mongodb://notifications-db:27017/notifications
+      - EMAIL_SERVICE_URL=http://email-service:3007
+    depends_on:
+      - notifications-db
+      - email-service
+    networks:
+      - microshop-network
+
+  # Email Service
+  email-service:
+    build: ./email-service
+    environment:
+      - PORT=3007
+      - NODE_ENV=development
+      - EMAIL_FROM=noreply@microshop.example
+    networks:
+      - microshop-network
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000/api
+    depends_on:
+      - api-gateway
+    networks:
+      - microshop-network
+
+  # Databases
+  users-db:
+    image: mongo:4.4
+    volumes:
+      - users-data:/data/db
+    networks:
+      - microshop-network
+
+  products-db:
+    image: mongo:4.4
+    volumes:
+      - products-data:/data/db
+    networks:
+      - microshop-network
+
+  orders-db:
+    image: mongo:4.4
+    volumes:
+      - orders-data:/data/db
+    networks:
+      - microshop-network
+
+  payments-db:
+    image: mongo:4.4
+    volumes:
+      - payments-data:/data/db
+    networks:
+      - microshop-network
+
+  inventory-db:
+    image: mongo:4.4
+    volumes:
+      - inventory-data:/data/db
+    networks:
+      - microshop-network
+
+  notifications-db:
+    image: mongo:4.4
+    volumes:
+      - notifications-data:/data/db
+    networks:
+      - microshop-network
+
+networks:
+  microshop-network:
+    driver: bridge
+
+volumes:
+  users-data:
+  products-data:
+  orders-data:
+  payments-data:
+  inventory-data:
+  notifications-data:

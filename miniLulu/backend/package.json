@@ -1,0 +1,13 @@
+{
+  "name": "microshop-lite-backend",
+  "version": "1.0.0",
+  "description": "Backend simplu pentru demonstrație Docker și microservicii",
+  "main": "simple-backend.js",
+  "scripts": {
+    "start": "node simple-backend.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}

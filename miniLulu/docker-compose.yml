@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    image: lulu/backend:v1.0
+    container_name: lulu-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+  frontend:
+    build:
+      context: ./frontend
+    image: lulu/frontend:v1.0
+    container_name: lulu-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

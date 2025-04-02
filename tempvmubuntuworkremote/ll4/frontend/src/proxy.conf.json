@@ -1,0 +1,6 @@
+{
+    "/api/*": {
+      "target": "http://lab4-backend:3000",
+      "secure": false
+    }
+}

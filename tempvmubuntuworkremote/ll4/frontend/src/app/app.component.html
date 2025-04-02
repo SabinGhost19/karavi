@@ -1,0 +1,40 @@
+<main class="main">
+  <div class="title-container">
+    <h3>Astăzi - {{dateString}}</h3>
+  </div>
+  <div class="fluid-content">
+      <div class="form-content">
+          <p>
+            <mat-form-field appearance="outline" floatLabel="always" style="margin-bottom: -1.25em">
+              <mat-label>Descriere</mat-label>
+              <input aria-multiline="true" [(ngModel)]="this.description" matInput>
+              <mat-icon matPrefix>assignment</mat-icon>
+            </mat-form-field>
+          </p>
+          <button mat-stroked-button style="border-radius: 5px; color: black;" (click)="createTask()">
+            <mat-icon>
+              add
+            </mat-icon>
+            Adăugare
+          </button>
+        </div>
+  </div>
+  <div class="separator"></div>
+  <div class="fluid-content">
+    <h4>Listă de sarcini</h4>
+    <div *ngFor="let task of tasks" class="task-container">
+        <mat-checkbox
+         class="example-margin"
+         [checked]="task.status === 'DONE'"
+         (change)="updateTask(task)"
+        >
+        </mat-checkbox>
+        <span [ngClass]="task.status === 'DONE' ? 'strikethrough' : ''" aria-multiline="true"><b>{{task.description}}</b></span>
+        <span [ngClass]="task.status === 'DONE' ? 'strikethrough' : ''">{{task.created_at | date: 'dd-MM-yyyy HH:mm' }}</span>
+    </div>
+  </div>
+</main>
+
+
+
+<router-outlet />

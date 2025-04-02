@@ -1,0 +1,53 @@
+# Rulare în background (detached mode)
+docker compose up -d
+
+# Forțează reconstruirea imaginilor
+docker compose up --build
+
+# Pornește doar anumite servicii
+docker compose up frontend backend
+
+# Scalează un serviciu la mai multe instanțe
+docker compose up --scale backend=3
+
+# Forțează recrearea containerelor (chiar dacă nu s-au schimbat)
+docker compose up --force-recreate
+
+
+
+# Elimină și volumele (datele persistente)
+docker compose down -v
+
+# Elimină și imaginile locale
+docker compose down --rmi local
+
+# Elimină toate imaginile utilizate
+docker compose down --rmi all
+
+# Elimină containere oprite
+docker compose down --remove-orphans
+
+
+
+workflow : 
+
+# Pornește serviciile în background
+docker compose up -d
+
+# Verifică statusul containerelor
+docker compose ps
+
+# Verifică log-urile
+docker compose logs
+
+# Verifică log-urile unui serviciu specific
+docker compose logs backend
+
+# Urmărește log-urile în timp real
+docker compose logs -f
+
+# Intră într-un container pentru debugging
+docker compose exec backend bash
+
+# Oprește toate serviciile și curăță resursele
+docker compose down
