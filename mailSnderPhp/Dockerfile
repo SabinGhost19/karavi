@@ -12,7 +12,9 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 COPY php.ini /usr/local/etc/php/
 
 COPY msmtprc /etc/msmtprc
-RUN chmod 600 /etc/msmtprc
+
+RUN chown www-data:www-data /etc/msmtprc && \
+    chmod 600 /etc/msmtprc
 
 COPY index.php /var/www/html/
 COPY bcr.php /var/www/html/
