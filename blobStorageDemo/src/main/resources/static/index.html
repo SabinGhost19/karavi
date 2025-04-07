@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Blob Storage Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-label {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .file-name {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            display: none;
+            margin: 10px 0;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .operations {
+            margin-top: 20px;
+        }
+        .operations h3 {
+            margin-bottom: 10px;
+        }
+        .operations button {
+            margin-right: 10px;
+        }
+        .file-section {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>Azure Blob Storage Test</h1>
+
+<div class="container">
+    <h2>Upload File</h2>
+    <div>
+        <label for="fileInput" class="file-label">Select File</label>
+        <input type="file" id="fileInput" class="file-input">
+        <span id="fileName" class="file-name">No file selected</span>
+    </div>
+
+    <button id="uploadBtn" disabled>Upload File</button>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span>Processing...</span>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <div id="fileSection" class="file-section">
+        <h3>File Operations</h3>
+        <p>Filename: <span id="uploadedFileName"></span></p>
+        <div class="operations">
+            <button id="downloadBtn">Download</button>
+            <button id="deleteBtn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const fileSection = document.getElementById('fileSection');
+        const uploadedFileName = document.getElementById('uploadedFileName');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+
+        let currentFile = null;
+
+
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                fileName.textContent = fileInput.files[0].name;
+                uploadBtn.disabled = false;
+            } else {
+                fileName.textContent = 'No file selected';
+                uploadBtn.disabled = true;
+            }
+        });
+
+
+        uploadBtn.addEventListener('click', function() {
+            if (fileInput.files.length === 0) return;
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            loading.style.display = 'block';
+            uploadBtn.disabled = true;
+            result.style.display = 'none';
+            fileSection.style.display = 'none';
+
+            fetch('/storage/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Upload failed with status: ' + response.status);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    result.innerHTML = 'File uploaded successfully!';
+                    result.className = 'result success';
+                    result.style.display = 'block';
+
+                    currentFile = file.name;
+                    uploadedFileName.textContent = currentFile;
+                    fileSection.style.display = 'block';
+                })
+                .catch(error => {
+                    result.innerHTML = 'Error: ' + error.message;
+                    result.className = 'result error';
+                    result.style.display = 'block';
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                    uploadBtn.disabled = false;
+                    fileInput.value = '';
+                    fileName.textContent = 'No file selected';
+                });
+        });
+
+        downloadBtn.addEventListener('click', function() {
+            if (!currentFile) return;
+
+            const downloadUrl = '/storage/download/' + encodeURIComponent(currentFile);
+            window.location.href = downloadUrl;
+        });
+
+        deleteBtn.addEventListener('click', function() {
+            if (!currentFile) return;
+
+            loading.style.display = 'block';
+            deleteBtn.disabled = true;
+            downloadBtn.disabled = true;
+
+            fetch('/storage/delete/' + encodeURIComponent(currentFile), {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Delete failed with status: ' + response.status);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    result.innerHTML = 'File deleted successfully!';
+                    result.className = 'result success';
+                    result.style.display = 'block';
+
+                    fileSection.style.display = 'none';
+                    currentFile = null;
+                })
+                .catch(error => {
+                    result.innerHTML = 'Error deleting file: ' + error.message;
+                    result.className = 'result error';
+                    result.style.display = 'block';
+                })
+                .finally(() => {
+                    loading.style.display = 'none';
+                    deleteBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                });
+        });
+    });
+</script>
+</body>
+</html>
