@@ -1,0 +1,40 @@
+# Text-to-Speech cu Azure
+
+## Descriere
+
+Acest proiect reprezinta o aplicatie web simpla care converteste text in fisiere audio folosind serviciile Azure Cognitive Services pentru Text-to-Speech. Utilizatorii pot introduce text intr-un formular web, iar aplicatia il va transforma in fisier audio care poate fi descarcat.
+
+## Pasi
+
+Creare resursa Seech pentru procesarea textului si descarcarea fisierului audio. In sectiunea Keys am luat regiunea si subscription_key
+si am populat variabilele din app.py cu acestea pentru authorizare. Am adaugat fisierul requiremetns.txt folosit pentru descarcarea pachetelor necesare app-ului in momentul deploymentului pe resursa App Service creata ulterior. (configurare deployment folosind local git, utilizand url-ul specificat si credentialele: username, password oferite din portalul Azure)
+
+## Tehnologii folosite
+
+- Python cu Flask: pentru back-end si server web
+- Azure Cognitive Services (Speech Service): pentru functionalitatea de text-to-speech
+- HTML/CSS: pentru interfata utilizatorului
+- Azure App Service: pentru hostarea aplicatiei in cloud
+
+## Cum functioneaza
+
+1. Utilizatorul introduce textul in formularul web
+2. Apasa butonul "Download Audio"
+3. Aplicatia trimite textul catre serviciul Azure Text-to-Speech
+4. Utilizatorul primeste fisierul audio care poate fi descarcat si redat
+
+## Probleme intampinate si solutii
+
+### Probleme cu deployment prin Git local
+
+Problema: Nu am putut face push cu Git local pentru deployment deoarece Basic Authentication nu era activat pentru aplicația web.
+
+Cauza:
+
+- La crearea resursei de App Service, nu am bifat opțiunea pentru activarea Basic Authentication
+- Credentialele nu apăreau corect în portal, fiind afișate doar ca REDACTED
+
+Soluție:
+
+- Am recreat resursa de App Service cu opțiunea Basic Authentication activată
+- După recreare, am putut vedea credențialele corecte și efectua deployment-ul prin Git local
